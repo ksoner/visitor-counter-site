@@ -42,27 +42,18 @@ const binUrl = 'https://getpantry.cloud/apiv1/pantry/a7a9c6bc-c6b4-48a6-87d1-d7c
       visitorNumber = 1;
     }
 
-    // Basket'i güncelle
-    await fetch(binUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visits: visitorNumber })
+   })
     });
 
     document.getElementById('actualNumber').value = visitorNumber;
     generateOptions(visitorNumber);
-  } catch (err) {
-    console.error('Sayaç hatası:', err);
-  }
-})();
-  .then(async data => {
-    const visitorNumber = (data.visits || 0) + 1;
-
-    // Bin'i güncelle
+     // Basket'i güncelle
     await fetch(binUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visits: visitorNumber })
+      body: JSON.stringify({ visits: visitorNumber 
+  } catch (err) {
+   { visits: visitorNumber })
     });
 
     document.getElementById('actualNumber').value = visitorNumber;
