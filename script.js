@@ -39,7 +39,9 @@ export async function initCounter() {
 function generateOptions(correct) {
   const options = new Set([correct]);
   while (options.size < 4) {
-    options.add(correct + Math.floor(Math.random() * 20 - 10));
+    const offset = Math.floor(Math.random() * 20) - 10;
+    const guess = Math.max(1, correct + offset);
+    options.add(guess);
   }
   return Array.from(options).sort(() => Math.random() - 0.5);
 }
@@ -48,17 +50,42 @@ function setupPage(visitorNumber) {
   const optionsDiv = document.getElementById('options');
   const emailForm = document.getElementById('emailForm');
   const realAnswerInput = document.getElementById('realAnswer');
+  const resultDiv = document.getElementById('result');
+  const form = document.getElementById('form');
+  let userGuess = null;
 
   const options = generateOptions(visitorNumber);
   options.forEach(opt => {
     const btn = document.createElement('button');
     btn.textContent = opt;
     btn.onclick = () => {
+      userGuess = opt;
       realAnswerInput.value = visitorNumber;
       emailForm.classList.remove('hidden');
       optionsDiv.classList.add('hidden');
     };
     optionsDiv.appendChild(btn);
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    try {
+      await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+    } catch (err) {
+      console.error('Form submission failed:', err);
+    }
+    emailForm.classList.add('hidden');
+    const correct = userGuess === visitorNumber;
+    let message = `<p>Tahminin: ${userGuess}</p>`;
+    message += `<p>Gerçek ziyaretçi numarası: ${visitorNumber}</p>`;
+    message += `<strong>${correct ? 'Tebrikler, bildiniz!' : 'Üzgünüm, bilemedin.'}</strong>`;
+    resultDiv.innerHTML = message;
+    resultDiv.classList.remove('hidden');
   });
 }
 
