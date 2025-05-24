@@ -1,128 +1,64 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ziyaretçi Sayacı Quiz</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess Your Visitor Number</title>
   <style>
-    body {font-family: Arial, sans-serif; text-align: center; padding: 40px;}
-    .options button {margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer;}
-    #emailForm {display: none; margin-top: 20px;}
-    #result {margin-top: 20px; font-size: 24px; font-weight: bold;}
+    body { font-family: sans-serif; text-align: center; padding: 2rem; }
+    .hidden { display: none; }
+    button { margin: 1rem; padding: 1rem 2rem; font-size: 1rem; cursor: pointer; }
+    input[type="email"] { padding: 0.5rem; font-size: 1rem; width: 250px; }
   </style>
 </head>
 <body>
   <h1>Bu siteye kaçıncı kişi olarak geldiğini düşünüyorsun?</h1>
-  <div id="options" class="options"></div>
+  <div id="options"></div>
+  
+  <div id="emailForm" class="hidden">
+    <p>Sonucu görmek için e‑posta adresinizi girin:</p>
+    <form id="form" action="https://formspree.io/f/your-form-id" method="POST">
+      <input type="email" name="email" required placeholder="Email adresiniz" />
+      <input type="hidden" name="realAnswer" id="realAnswer" />
+      <button type="submit">Sonucu Gör</button>
+    </form>
+  </div>
 
-  <form id="emailForm" method="POST" action="https://formspree.io/f/xwpodpor">
-    <input type="hidden" name="actualVisitorNumber" id="actualNumber">
-    <input type="hidden" name="userGuess" id="userGuess">
-    <label for="email">Sonucu görmek için e‑postanı gir:</label><br>
-    <input type="email" id="email" name="email" required placeholder="ornek@eposta.com"><br><br>
-    <button type="submit">Göster</button>
-  </form>
-
-  <div id="result"></div>
+  <div id="result" class="hidden"></div>
 
   <script>
-   // getpantry basket URL
-const binUrl = 'https://getpantry.cloud/apiv1/pantry/a7a9c6bc-c6b4-48a6-87d1-d7c0948eeea4/basket/visits';
-    const fallback = Math.floor(Math.random() * 1000) + 1;
-document.getElementById('actualNumber').value = fallback;
-generateOptions(fallback);
+    const correctNumber = Math.floor(Math.random() * 1000) + 1; // sahte sayaç
+    const optionsDiv = document.getElementById('options');
+    const emailForm = document.getElementById('emailForm');
+    const resultDiv = document.getElementById('result');
+    const realAnswerInput = document.getElementById('realAnswer');
 
-
-// Ziyaretçi numarasını al ve artır
-(async () => {
-  try {
-    const res = await fetch(binUrl);
-    let visitorNumber;
-    if (res.ok) {
-      const data = await res.json();
-      visitorNumber = (data.visits || 0) + 1;
-    } else {
-      // İlk ziyaret
-      visitorNumber = 1;
+    function generateOptions(correct) {
+      const options = new Set([correct]);
+      while (options.size < 4) {
+        options.add(correct + Math.floor(Math.random() * 20 - 10));
+      }
+      return Array.from(options).sort(() => Math.random() - 0.5);
     }
 
-   })
+    const options = generateOptions(correctNumber);
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.onclick = () => {
+        realAnswerInput.value = correctNumber;
+        emailForm.classList.remove('hidden');
+        optionsDiv.classList.add('hidden');
+      };
+      optionsDiv.appendChild(btn);
     });
 
-    document.getElementById('actualNumber').value = visitorNumber;
-    generateOptions(visitorNumber);
-     // Basket'i güncelle
-    await fetch(binUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visits: visitorNumber 
-  } catch (err) {
-   { visits: visitorNumber })
+    // Form gönderildikten sonra sonucu göster (gerçekte backend ile yapılmalı)
+    document.getElementById('form').addEventListener('submit', e => {
+      resultDiv.textContent = `Doğru cevap: ${correctNumber}`;
+      resultDiv.classList.remove('hidden');
+      emailForm.classList.add('hidden');
     });
-
-    document.getElementById('actualNumber').value = visitorNumber;
-    generateOptions(visitorNumber);
-  })
-  .catch(err => console.error('Sayaç hatası:', err));rr));
-
-    function generateOptions(actual) {
-      const optionsDiv = document.getElementById('options');
-      const numbers = new Set([actual]);
-
-      // Gerçek sayıya yakın 3 rastgele sayı üret
-      while (numbers.size < 4) {
-        const randomOffset = Math.floor(Math.random() * 20) - 10; // -10..+9
-        const candidate = actual + randomOffset;
-        if (candidate > 0) numbers.add(candidate);
-      }
-
-      // Karıştır
-      const shuffled = Array.from(numbers).sort(() => Math.random() - 0.5);
-
-      // Butonları oluştur
-      shuffled.forEach(num => {
-        const btn = document.createElement('button');
-        btn.textContent = num;
-        btn.addEventListener('click', () => {
-          document.getElementById('userGuess').value = num;
-          document.getElementById('emailForm').style.display = 'block';
-          optionsDiv.style.display = 'none';
-        });
-        optionsDiv.appendChild(btn);
-      });
-    }
-
-    // Form gönderimini yönet
-    const form = document.getElementById('emailForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      const actual = formData.get('actualVisitorNumber');
-      const guess = formData.get('userGuess');
-
-      // Formspree'e gönder
-      const response = await fetch(form.action, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: formData
-      });
-
-      if (response.ok) {
-        showResult(actual, guess);
-      } else {
-        alert('Gönderim sırasında bir hata oluştu. Lütfen tekrar deneyin.');
-      }
-    });
-
-    function showResult(actual, guess) {
-      document.getElementById('emailForm').style.display = 'none';
-      const resultDiv = document.getElementById('result');
-      if (actual == guess) {
-        resultDiv.textContent = `Tebrikler! Doğru bildin: ${actual}`;
-      } else {
-        resultDiv.textContent = `Yanlış tahmin! Gerçek sayı: ${actual}`;
-      }
-    }
   </script>
 </body>
 </html>
