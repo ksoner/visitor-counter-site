@@ -26,16 +26,35 @@
   <div id="result"></div>
 
   <script>
-    // CountAPI namespace and key
-    const namespace = 'visitorcounterdemo'; // benzersiz bir isim seçin
-    const key = 'visits';
-
-  // npoint bin URL
-const binUrl = 'https://api.npoint.io/c3cca8acf6672c002239';
+   // getpantry basket URL
+const binUrl = 'https://getpantry.cloud/apiv1/pantry/a7a9c6bc-c6b4-48a6-87d1-d7c0948eeea4/basket/visits';
 
 // Ziyaretçi numarasını al ve artır
-fetch(binUrl)
-  .then(res => res.json())
+(async () => {
+  try {
+    const res = await fetch(binUrl);
+    let visitorNumber;
+    if (res.ok) {
+      const data = await res.json();
+      visitorNumber = (data.visits || 0) + 1;
+    } else {
+      // İlk ziyaret
+      visitorNumber = 1;
+    }
+
+    // Basket'i güncelle
+    await fetch(binUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visits: visitorNumber })
+    });
+
+    document.getElementById('actualNumber').value = visitorNumber;
+    generateOptions(visitorNumber);
+  } catch (err) {
+    console.error('Sayaç hatası:', err);
+  }
+})();
   .then(async data => {
     const visitorNumber = (data.visits || 0) + 1;
 
