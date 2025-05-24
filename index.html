@@ -30,15 +30,26 @@
     const namespace = 'visitorcounterdemo'; // benzersiz bir isim seçin
     const key = 'visits';
 
-    // Ziyaretçi numarasını al
-    fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
-      .then(res => res.json())
-      .then(data => {
-        const visitorNumber = data.value;
-        document.getElementById('actualNumber').value = visitorNumber;
-        generateOptions(visitorNumber);
-      })
-      .catch(err => console.error('Sayaç hatası:', err));
+  // npoint bin URL
+const binUrl = 'https://api.npoint.io/c3cca8acf6672c002239';
+
+// Ziyaretçi numarasını al ve artır
+fetch(binUrl)
+  .then(res => res.json())
+  .then(async data => {
+    const visitorNumber = (data.visits || 0) + 1;
+
+    // Bin'i güncelle
+    await fetch(binUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visits: visitorNumber })
+    });
+
+    document.getElementById('actualNumber').value = visitorNumber;
+    generateOptions(visitorNumber);
+  })
+  .catch(err => console.error('Sayaç hatası:', err));rr));
 
     function generateOptions(actual) {
       const optionsDiv = document.getElementById('options');
