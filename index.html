@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ziyaretçi Sayacı Quiz</title>
+  <style>
+    body {font-family: Arial, sans-serif; text-align: center; padding: 40px;}
+    .options button {margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer;}
+    #emailForm {display: none; margin-top: 20px;}
+    #result {margin-top: 20px; font-size: 24px; font-weight: bold;}
+  </style>
+</head>
+<body>
+  <h1>Bu siteye kaçıncı kişi olarak geldiğini düşünüyorsun?</h1>
+  <div id="options" class="options"></div>
+
+  <form id="emailForm" method="POST" action="https://formspree.io/f/your-form-id">
+    <input type="hidden" name="actualVisitorNumber" id="actualNumber">
+    <input type="hidden" name="userGuess" id="userGuess">
+    <label for="email">Sonucu görmek için e‑postanı gir:</label><br>
+    <input type="email" id="email" name="email" required placeholder="ornek@eposta.com"><br><br>
+    <button type="submit">Göster</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    // CountAPI namespace and key
+    const namespace = 'visitorcounterdemo'; // benzersiz bir isim seçin
+    const key = 'visits';
+
+    // Ziyaretçi numarasını al
+    fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+      .then(res => res.json())
+      .then(data => {
+        const visitorNumber = data.value;
+        document.getElementById('actualNumber').value = visitorNumber;
+        generateOptions(visitorNumber);
+      })
+      .catch(err => console.error('Sayaç hatası:', err));
+
+    function generateOptions(actual) {
+      const optionsDiv = document.getElementById('options');
+      const numbers = new Set([actual]);
+
+      // Gerçek sayıya yakın 3 rastgele sayı üret
+      while (numbers.size < 4) {
+        const randomOffset = Math.floor(Math.random() * 20) - 10; // -10..+9
+        const candidate = actual + randomOffset;
+        if (candidate > 0) numbers.add(candidate);
+      }
+
+      // Karıştır
+      const shuffled = Array.from(numbers).sort(() => Math.random() - 0.5);
+
+      // Butonları oluştur
+      shuffled.forEach(num => {
+        const btn = document.createElement('button');
+        btn.textContent = num;
+        btn.addEventListener('click', () => {
+          document.getElementById('userGuess').value = num;
+          document.getElementById('emailForm').style.display = 'block';
+          optionsDiv.style.display = 'none';
+        });
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    // Form gönderimini yönet
+    const form = document.getElementById('emailForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const actual = formData.get('actualVisitorNumber');
+      const guess = formData.get('userGuess');
+
+      // Formspree'e gönder
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: formData
+      });
+
+      if (response.ok) {
+        showResult(actual, guess);
+      } else {
+        alert('Gönderim sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+      }
+    });
+
+    function showResult(actual, guess) {
+      document.getElementById('emailForm').style.display = 'none';
+      const resultDiv = document.getElementById('result');
+      if (actual == guess) {
+        resultDiv.textContent = `Tebrikler! Doğru bildin: ${actual}`;
+      } else {
+        resultDiv.textContent = `Yanlış tahmin! Gerçek sayı: ${actual}`;
+      }
+    }
+  </script>
+</body>
+</html>
