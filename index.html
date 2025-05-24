@@ -28,6 +28,10 @@
   <script>
    // getpantry basket URL
 const binUrl = 'https://getpantry.cloud/apiv1/pantry/a7a9c6bc-c6b4-48a6-87d1-d7c0948eeea4/basket/visits';
+    const fallback = Math.floor(Math.random() * 1000) + 1;
+document.getElementById('actualNumber').value = fallback;
+generateOptions(fallback);
+
 
 // Ziyaretçi numarasını al ve artır
 (async () => {
