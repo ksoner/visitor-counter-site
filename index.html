@@ -26,39 +26,6 @@
 
   <div id="result" class="hidden"></div>
 
-  <script>
-    const correctNumber = Math.floor(Math.random() * 1000) + 1; // sahte sayaç
-    const optionsDiv = document.getElementById('options');
-    const emailForm = document.getElementById('emailForm');
-    const resultDiv = document.getElementById('result');
-    const realAnswerInput = document.getElementById('realAnswer');
-
-    function generateOptions(correct) {
-      const options = new Set([correct]);
-      while (options.size < 4) {
-        options.add(correct + Math.floor(Math.random() * 20 - 10));
-      }
-      return Array.from(options).sort(() => Math.random() - 0.5);
-    }
-
-    const options = generateOptions(correctNumber);
-    options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.textContent = opt;
-      btn.onclick = () => {
-        realAnswerInput.value = correctNumber;
-        emailForm.classList.remove('hidden');
-        optionsDiv.classList.add('hidden');
-      };
-      optionsDiv.appendChild(btn);
-    });
-
-    // Form gönderildikten sonra sonucu göster (gerçekte backend ile yapılmalı)
-    document.getElementById('form').addEventListener('submit', e => {
-      resultDiv.textContent = `Doğru cevap: ${correctNumber}`;
-      resultDiv.classList.remove('hidden');
-      emailForm.classList.add('hidden');
-    });
-  </script>
+  <<script type="module" src="script.js"></script>t>
 </body>
 </html>
