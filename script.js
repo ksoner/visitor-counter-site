@@ -34,3 +34,34 @@ export async function initCounter() {
     return Math.floor(Math.random() * 1000) + 1; // fallback
   }
 }
+
+
+function generateOptions(correct) {
+  const options = new Set([correct]);
+  while (options.size < 4) {
+    options.add(correct + Math.floor(Math.random() * 20 - 10));
+  }
+  return Array.from(options).sort(() => Math.random() - 0.5);
+}
+
+function setupPage(visitorNumber) {
+  const optionsDiv = document.getElementById('options');
+  const emailForm = document.getElementById('emailForm');
+  const realAnswerInput = document.getElementById('realAnswer');
+
+  const options = generateOptions(visitorNumber);
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.onclick = () => {
+      realAnswerInput.value = visitorNumber;
+      emailForm.classList.remove('hidden');
+      optionsDiv.classList.add('hidden');
+    };
+    optionsDiv.appendChild(btn);
+  });
+}
+
+// Sayaç başlat
+initCounter().then(setupPage);
+
