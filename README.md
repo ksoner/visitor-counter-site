@@ -4,7 +4,7 @@ This project is a simple web page that guesses how many visitors came before you
 
 ## Running the site
 
-Open `index.html` in a browser or serve the directory with any static file server. The page will display four options asking what visitor number you think you are. After choosing an option, the page asks for your e‑mail to show the real visitor number.
+Open `index.html` in a browser or serve the directory with any static file server. The page will display four options asking what visitor number you think you are. After choosing an option, the page asks for your e‑mail to show the real visitor number. Once the form is submitted, the page reveals both the number you selected and the actual visitor count, followed by either **“Tebrikler, bildiniz!”** if you guessed correctly or **“Üzgünüm, bilemedin.”** otherwise.
 
 ## Firebase configuration
 
